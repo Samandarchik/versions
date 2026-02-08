@@ -18,6 +18,7 @@ type AppVersion struct {
 	AndroidVersion string    `json:"androidVersion"`
 	AppStoreURL    string    `json:"appstoreUrl"`
 	PlayStoreURL   string    `json:"playstoreUrl"`
+	IsRelease      bool      `json:"isRelease"`
 	IsActive       bool      `json:"isActive"`
 	CreatedAt      time.Time `json:"createdAt"`
 	UpdatedAt      time.Time `json:"updatedAt"`
@@ -101,6 +102,7 @@ func (d *Database) UpdateApp(appName string, updated AppVersion) error {
 			d.Apps[i].AndroidVersion = updated.AndroidVersion
 			d.Apps[i].AppStoreURL = updated.AppStoreURL
 			d.Apps[i].PlayStoreURL = updated.PlayStoreURL
+			d.Apps[i].IsRelease = updated.IsRelease
 			d.Apps[i].UpdatedAt = time.Now()
 			return d.Save()
 		}
@@ -156,6 +158,7 @@ func healthHandler(c *gin.Context) {
 			"androidVersion": app.AndroidVersion,
 			"appstoreUrl":    app.AppStoreURL,
 			"playstoreUrl":   app.PlayStoreURL,
+			"isRelease":      app.IsRelease,
 		},
 	})
 }
@@ -260,10 +263,7 @@ func main() {
 	r := gin.Default()
 	r.Use(corsMiddleware())
 
-	// Swagger files
-	r.Static("/swagger", "./swagger")
-
-	// API routes
+	// Routes
 	r.GET("/health", healthHandler)
 
 	api := r.Group("/api/v1")
@@ -280,6 +280,5 @@ func main() {
 	}
 
 	log.Printf("🚀 Server running on port %s", port)
-	log.Printf("📖 Swagger UI: http://localhost:%s/swagger/", port)
 	r.Run(":" + port)
 }
