@@ -1,0 +1,361 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Version Control API",
+    "description": "API for managing mobile app versions",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8090",
+      "description": "Local server"
+    },
+    {
+      "url": "https://version.uzaidev.uz",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "Apps",
+      "description": "App version management"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Check app version",
+        "description": "Returns version information for the specified app",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "query",
+            "description": "App name (default: mone_task_app)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "mone_task_app"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "App not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/apps": {
+      "get": {
+        "tags": ["Apps"],
+        "summary": "Get all apps",
+        "description": "Retrieve all active apps",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Apps retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AppVersion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Apps"],
+        "summary": "Create new app",
+        "description": "Add a new app with version details",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppVersionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "App created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/apps/{appName}": {
+      "put": {
+        "tags": ["Apps"],
+        "summary": "Update app version",
+        "description": "Update version info for existing app",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "App name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppVersionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "App updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "App not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Apps"],
+        "summary": "Delete app",
+        "description": "Soft delete an app",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "App name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "App deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "App not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppVersion": {
+        "type": "object",
+        "properties": {
+          "appName": {
+            "type": "string",
+            "example": "mone_task_app"
+          },
+          "iosVersion": {
+            "type": "string",
+            "example": "1.0.5"
+          },
+          "androidVersion": {
+            "type": "string",
+            "example": "1.0.5"
+          },
+          "appstoreUrl": {
+            "type": "string",
+            "example": "https://apps.apple.com/app/id6752371524"
+          },
+          "playstoreUrl": {
+            "type": "string",
+            "example": "https://play.google.com/store/apps/details?id=com.mone.task"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AppVersionInput": {
+        "type": "object",
+        "required": ["appName", "iosVersion", "androidVersion", "appstoreUrl", "playstoreUrl"],
+        "properties": {
+          "appName": {
+            "type": "string",
+            "example": "mone_task_app"
+          },
+          "iosVersion": {
+            "type": "string",
+            "example": "1.0.5"
+          },
+          "androidVersion": {
+            "type": "string",
+            "example": "1.0.5"
+          },
+          "appstoreUrl": {
+            "type": "string",
+            "example": "https://apps.apple.com/app/id6752371524"
+          },
+          "playstoreUrl": {
+            "type": "string",
+            "example": "https://play.google.com/store/apps/details?id=com.mone.task"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "example": "App version retrieved"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "iosVersion": {
+                "type": "string",
+                "example": "1.0.5"
+              },
+              "androidVersion": {
+                "type": "string",
+                "example": "1.0.5"
+              },
+              "appstoreUrl": {
+                "type": "string",
+                "example": "https://apps.apple.com/app/id6752371524"
+              },
+              "playstoreUrl": {
+                "type": "string",
+                "example": "https://play.google.com/store/apps/details?id=com.mone.task"
+              }
+            }
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          }
+        }
+      }
+    }
+  }
+}
