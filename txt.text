@@ -1,0 +1,3 @@
+ go build -o versions main.go
+pkill versions 
+nohup ./versions > log.txt 2>&1 &
